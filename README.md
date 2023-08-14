@@ -14,6 +14,7 @@ List of the projects in question:
 
 To set up a dev environment, you'll want to do the following things. Look, I know this isn't easy, but be glad I at least wrote it down for you:
 
+* Install ef via `dotnet tool restore`
 * Have a local PostgreSQL database running. (and maybe a tool like pgAdmin to manage it)
 * Create a database and username on that database.
 * Use `dotnet ef migrations script` to get the SQL schema for the database, run it through the database and make sure you don't screw up the permissions on the created tables.
