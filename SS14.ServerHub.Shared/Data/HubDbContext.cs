@@ -13,7 +13,9 @@ public sealed class HubDbContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
             
-        optionsBuilder.ReplaceService<IRelationalTypeMappingSource, CustomNpgsqlTypeMappingSource>();
+        // Temporarily removing as I'm not using Postgre and don't feel like dealing with whatever 
+        // API incompatibility they introduced between versions
+        //optionsBuilder.ReplaceService<IRelationalTypeMappingSource, CustomNpgsqlTypeMappingSource>();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

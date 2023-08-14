@@ -106,11 +106,14 @@ public static class StartupHelpers
             credentials = new BasicAuthCredentials(dat.Address, dat.Username, dat.Password);
         }
 
+        // TODO: make this working again if we ever use loki (broke during version upgrade)
+        /*
         log.WriteTo.LokiHttp(credentials, new DefaultLogLabelProvider(new[]
         {
             new LokiLabel("App", appName),
             new LokiLabel("Server", dat.Name)
         }));
+        */
     }
 
     private sealed class LokiConfigurationData

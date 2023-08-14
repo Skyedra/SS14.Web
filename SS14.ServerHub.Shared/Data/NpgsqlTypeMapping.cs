@@ -12,13 +12,15 @@ namespace SS14.ServerHub.Shared.Data;
 
 // Taken from https://github.com/npgsql/efcore.pg/issues/1158
 // To support inet -> (IPAddress, int) mapping.
+/*
 public class CustomNpgsqlTypeMappingSource : NpgsqlTypeMappingSource
 {
     public CustomNpgsqlTypeMappingSource(
         TypeMappingSourceDependencies dependencies,
         RelationalTypeMappingSourceDependencies relationalDependencies,
-        ISqlGenerationHelper sqlGenerationHelper,
-        INpgsqlOptions? npgsqlOptions = null)
+        ISqlGenerationHelper sqlGenerationHelper
+        //INpgsqlOptions? npgsqlOptions = null   (removed?  not sure, and I'm not using pgsql so beware)
+        )
         : base(dependencies, relationalDependencies, sqlGenerationHelper, npgsqlOptions)
     {
         StoreTypeMappings["inet"] =
@@ -29,6 +31,7 @@ public class CustomNpgsqlTypeMappingSource : NpgsqlTypeMappingSource
             };
     }
 }
+*/
 
 // Basically copied from NpgsqlCidrTypeMapping
 public class NpgsqlInetWithMaskTypeMapping : NpgsqlTypeMapping
