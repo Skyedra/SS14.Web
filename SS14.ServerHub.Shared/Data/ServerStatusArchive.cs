@@ -13,7 +13,7 @@ public sealed class ServerStatusArchive
     /// </summary>
     public DateTime Time { get; set; }
 
-    [Column(TypeName = "jsonb")] public byte[] StatusData { get; set; } = default!;
+    [Column(TypeName = "json")] public byte[] StatusData { get; set; } = default!;
     
     /// <summary>
     /// IP address of the client doing the advertise request. Not actually related to the advertised data.

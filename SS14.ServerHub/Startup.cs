@@ -35,7 +35,11 @@ public class Startup
         services.AddDbContext<HubDbContext>(options =>
         {
             var connectionString = Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Must set DefaultConnection");
-            options.UseNpgsql(connectionString);
+            //options.UseNpgsql(connectionString);
+            options.UseMySql(
+                connectionString, 
+                ServerVersion.AutoDetect(connectionString),
+                mysqlOptions => mysqlOptions.UseMicrosoftJson());
         });
 
         services.AddHttpClient("ServerStatusCheck",

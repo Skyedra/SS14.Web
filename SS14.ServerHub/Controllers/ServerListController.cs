@@ -215,7 +215,11 @@ public class ServerListController : ControllerBase
             return BanCheckResult.FailedResolve;
         }
 
-        var banned = matched.SingleOrDefault(x => x.IsBanned);
+        // wizden has this as a .SingleOrDefault but I'm not sure why... seems like
+        // you could have multiple overlapping IP ranges (this threw exception due to
+        // multiple results in my test).
+        //var banned = matched.SingleOrDefault(x => x.IsBanned);
+        var banned = matched.Find(x => x.IsBanned);
         if (banned != null)
         {
             _logger.LogInformation(
@@ -229,7 +233,9 @@ public class ServerListController : ControllerBase
     private async Task<TrackedCommunityAddress?> CheckIpBannedAsync(IPAddress address)
     {
         return await CommunityMatcher.CheckIP(_dbContext, address)
-            .SingleOrDefaultAsync(b => b.TrackedCommunity.IsBanned);
+            .FirstOrDefaultAsync(b => b.TrackedCommunity.IsBanned);
+            //.SingleOrDefaultAsync(b => b.TrackedCommunity.IsBanned);
+            // (See above note about wizden's use of SingleOrDefault)
     }
 
     private enum BanCheckResult

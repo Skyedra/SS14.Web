@@ -34,6 +34,7 @@ public class CustomNpgsqlTypeMappingSource : NpgsqlTypeMappingSource
 */
 
 // Basically copied from NpgsqlCidrTypeMapping
+/*
 public class NpgsqlInetWithMaskTypeMapping : NpgsqlTypeMapping
 {
     public NpgsqlInetWithMaskTypeMapping() : base("inet", typeof((IPAddress, int)), NpgsqlTypes.NpgsqlDbType.Inet)
@@ -68,3 +69,4 @@ public class NpgsqlInetWithMaskTypeMapping : NpgsqlTypeMapping
     static readonly ConstructorInfo Constructor =
         typeof((IPAddress, int)).GetConstructor(new[] { typeof(IPAddress), typeof(int) })!;
 }
+*/

@@ -20,17 +20,18 @@ public sealed class AdvertisedServer
     /// <summary>
     /// Last status data polled from the server.
     /// </summary>
-    [Column(TypeName = "jsonb")]
+    [Column(TypeName = "json")]
     public byte[]? StatusData { get; set; }
     
     /// <summary>
     /// Last info data polled from the server.
     /// </summary>
-    [Column(TypeName = "jsonb")]
+    [Column(TypeName = "json")]
     public byte[]? InfoData { get; set; }
     
     /// <summary>
     /// IP address of the client doing the advertise request. Not actually related to the advertised data.
     /// </summary>
-    [Column(TypeName = "inet")] public IPAddress? AdvertiserAddress { get; set; }
+    //[Column(TypeName = "inet")]  // (Not supported in MySQL)
+    public IPAddress? AdvertiserAddress { get; set; }
 }

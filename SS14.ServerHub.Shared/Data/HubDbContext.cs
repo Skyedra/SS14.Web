@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Net;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace SS14.ServerHub.Shared.Data;
@@ -24,7 +25,7 @@ public sealed class HubDbContext : DbContext
 
         // Address must be valid ss14:// or ss14s:// URI.
         modelBuilder.Entity<AdvertisedServer>()
-            .HasCheckConstraint("AddressSs14Uri", "\"Address\" LIKE 'ss14://%' OR \"Address\" LIKE 'ss14s://%'");
+            .HasCheckConstraint("AddressSs14Uri", "`Address` LIKE 'ss14://%' OR `Address` LIKE 'ss14s://%'");
 
         // Unique index on address.
         modelBuilder.Entity<AdvertisedServer>()
@@ -43,6 +44,23 @@ public sealed class HubDbContext : DbContext
 
         modelBuilder.Entity<HubAudit>()
             .HasIndex(e => e.Time);
+
+        modelBuilder.Entity<TrackedCommunityAddress>()
+            .Property(e => e.StartAddressRange)
+            .ValueGeneratedOnAddOrUpdate()
+            .HasConversion<byte[]>();
+
+         modelBuilder.Entity<TrackedCommunityAddress>()
+            .HasIndex(e => e.StartAddressRange);
+
+        modelBuilder.Entity<TrackedCommunityAddress>()
+            .Property(e => e.EndAddressRange)
+            .ValueGeneratedOnAddOrUpdate()
+            .HasConversion<byte[]>();
+
+        modelBuilder.Entity<TrackedCommunityAddress>()
+            .HasIndex(e => e.EndAddressRange);
+
     }
 
     public DbSet<AdvertisedServer> AdvertisedServer { get; set; } = default!;

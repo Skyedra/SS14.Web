@@ -1,6 +1,12 @@
-# Space Station 14 Web Services
+# Space Station Multiverse Web Services
 
-**These are backend services hosted by Space Wizards for all of Space Station 14 and Robust. You do not need need to host these yourself in any case (except if you feel like contributing, I guess).**
+Backend services that have been modified to use MySQL instead of Postgre.  It is not backwards compatible with Postgre (I don't know much about EF)
+
+NOTE:  Only Hub service has been ported so far.
+
+This repo will only be of interest to you if you want to run a **hub** server on MySQL.  (Not needed for fork game server hosting)
+
+## TOC
 
 This repo contains various frontend and backend web services used by **Space Station 14**.
 

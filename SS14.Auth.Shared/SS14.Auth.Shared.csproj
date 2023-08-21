@@ -18,6 +18,8 @@
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.32.1" />
         <PackageReference Include="MimeKit" Version="4.1.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Microsoft" Version="7.0.0" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Newtonsoft" Version="7.0.0" />
         <PackageReference Include="Robust.Shared.AuthLib" Version="0.1.2" />
         <PackageReference Include="Serilog" Version="3.0.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
@@ -27,6 +29,7 @@
         <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="4.1.2" />
         <PackageReference Include="Dapper" Version="2.0.143" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.10" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>

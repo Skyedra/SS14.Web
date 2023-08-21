@@ -34,8 +34,13 @@ public static class StartupHelpers
         });
             
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(
-                config.GetConnectionString("DefaultConnection")));
+            //options.UseNpgsql(
+            //    config.GetConnectionString("DefaultConnection"))
+                options.UseMySql(
+                        config.GetConnectionString("DefaultConnection"), 
+                        ServerVersion.AutoDetect(config.GetConnectionString("DefaultConnection")),
+                        mysqlOptions => mysqlOptions.UseMicrosoftJson())
+                );
 
         services.AddDataProtection()
             .PersistKeysToDbContext<ApplicationDbContext>()

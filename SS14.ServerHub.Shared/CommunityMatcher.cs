@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore;
+using MySqlConnector;
 using SS14.ServerHub.Shared.Data;
+using SS14.ServerHub.Shared.Helpers;
 
 namespace SS14.ServerHub.Shared;
 
@@ -12,8 +14,13 @@ public static class CommunityMatcher
 {
     public static IQueryable<TrackedCommunityAddress> CheckIP(HubDbContext dbContext, IPAddress address)
     {
-        return dbContext.TrackedCommunityAddress
-            .Where(c => EF.Functions.ContainsOrEqual(c.Address, address));
+        // Using ipv6 in MySQL is not straightforward...
+        // https://dev.mysql.com/blog-archive/mysql-8-0-storing-ipv6/
+        // (There may be a better way to do this in EF, but I don't know enough about it)
+
+        return dbContext.TrackedCommunityAddress.FromSql(
+            $"SELECT * from TrackedCommunityAddress WHERE INET6_ATON({address.ToString()}) BETWEEN `StartAddressRange` and `EndAddressRange`"
+        );
     }
     
     public static IQueryable<TrackedCommunityDomain> CheckDomain(HubDbContext dbContext, string domain)

@@ -18,6 +18,9 @@
         </PackageReference>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
+        <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Microsoft" Version="7.0.0" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Json.Newtonsoft" Version="7.0.0" />
     </ItemGroup>
 
 </Project>

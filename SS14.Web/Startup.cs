@@ -49,7 +49,11 @@ public class Startup
         services.AddDbContext<HubDbContext>(options =>
         {
             var connectionString = Configuration.GetConnectionString("HubConnection") ?? throw new InvalidOperationException("Must set HubConnection");
-            options.UseNpgsql(connectionString);
+            //options.UseNpgsql(connectionString);
+            options.UseMySql(
+                connectionString, 
+                ServerVersion.AutoDetect(connectionString),
+                mysqlOptions => mysqlOptions.UseMicrosoftJson());
         });
 
         services.AddAuthorization(options =>

@@ -9,5 +9,5 @@ public class PatreonWebhookLog
     public string Trigger { get; set; }
     public DateTimeOffset Time { get; set; }
 
-    [Column(TypeName = "jsonb")] public string Content { get; set; }
+    [Column(TypeName = "json")] public string Content { get; set; }
 }
