@@ -45,8 +45,7 @@ public class TrackedCommunityAddress
             EndAddressRange = value.Item1; // definitely wrong, implement before removing above exception
         }
     }
-    // https://stackoverflow.com/a/596616
-
+    
     // https://dev.mysql.com/blog-archive/mysql-8-0-storing-ipv6/
     // Need to specifically use varbinary as ipv4 and ipv6 are different lengths
     // (Using binary will result in ipv4 being mangled)

@@ -53,6 +53,8 @@ public class Startup
 
         services.AddOptions<HubOptions>()
             .Bind(Configuration.GetSection(HubOptions.Position));
+
+        services.AddHostedService<PeriodicPruneService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
