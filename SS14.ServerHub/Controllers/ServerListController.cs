@@ -111,6 +111,11 @@ public class ServerListController : ControllerBase
         var addressEntity =
             await _dbContext.AdvertisedServer.SingleOrDefaultAsync(a => a.Address == advertise.Address);
 
+        // Check how many servers are advertised by an advertiser already
+        var multiAdvertcelCount = await _dbContext.AdvertisedServer.CountAsync(a => a.AdvertiserAddress == senderIp);
+        // If over 3 tell them to go away
+        if (multiAdvertcelCount >= 3) return BadRequest("You are not welcome here go away :trollface:");
+
         var timeNow = DateTime.UtcNow;
         var newExpireTime = timeNow + TimeSpan.FromMinutes(options.AdvertisementExpireMinutes);
         if (addressEntity == null)
