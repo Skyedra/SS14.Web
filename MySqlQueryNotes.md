@@ -3,7 +3,13 @@ As I haven't explored yet getting the admin interface up and running, here's my 
 # Adding a tracked IP to db:
 
 ```
-INSERT INTO TrackedCommunityAddress SET TrackedCommunityId=1, StartAddressRange=INET6_ATON("1.2.3.4"), EndAddressRange=INET6_ATON("1.2.3.4"); 
+INSERT INTO TrackedCommunityAddress SET TrackedCommunityId=1, StartAddressRange=INET6_ATON("1.9.8.4"), EndAddressRange=INET6_ATON("1.9.8.4"); 
+```
+
+Then expire it to shove it off the list
+
+```
+UPDATE `AdvertisedServer` SET Expires = "1984-01-01" where Address LIKE "%1.9.8.4%" ORDER BY `Expires`  DESC 
 ```
 
 # Listing tracked IPs in human readable format
