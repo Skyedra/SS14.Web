@@ -1,0 +1,107 @@
+Build started...
+Build succeeded.
+CREATE TABLE IF NOT EXISTS `__EFMigrationsHistory` (
+    `MigrationId` varchar(150) CHARACTER SET utf8mb4 NOT NULL,
+    `ProductVersion` varchar(32) CHARACTER SET utf8mb4 NOT NULL,
+    CONSTRAINT `PK___EFMigrationsHistory` PRIMARY KEY (`MigrationId`)
+) CHARACTER SET=utf8mb4;
+
+START TRANSACTION;
+
+ALTER DATABASE CHARACTER SET utf8mb4;
+
+CREATE TABLE `AdvertisedServer` (
+    `AdvertisedServerId` int NOT NULL AUTO_INCREMENT,
+    `Address` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+    `Expires` datetime(6) NOT NULL,
+    `StatusData` json NULL,
+    `InfoData` json NULL,
+    `AdvertiserAddress` varchar(45) CHARACTER SET utf8mb4 NULL,
+    CONSTRAINT `PK_AdvertisedServer` PRIMARY KEY (`AdvertisedServerId`),
+    CONSTRAINT `AddressSs14Uri` CHECK (`Address` LIKE 'ss14://%' OR `Address` LIKE 'ss14s://%')
+) CHARACTER SET=utf8mb4;
+
+CREATE TABLE `HubAudit` (
+    `Id` int NOT NULL AUTO_INCREMENT,
+    `Actor` char(36) COLLATE ascii_general_ci NOT NULL,
+    `Type` int NOT NULL,
+    `Data` json NOT NULL,
+    `Time` datetime(6) NOT NULL,
+    CONSTRAINT `PK_HubAudit` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
+
+CREATE TABLE `TrackedCommunity` (
+    `Id` int NOT NULL AUTO_INCREMENT,
+    `Name` longtext CHARACTER SET utf8mb4 NOT NULL,
+    `Notes` longtext CHARACTER SET utf8mb4 NOT NULL,
+    `Created` datetime(6) NOT NULL,
+    `LastUpdated` datetime(6) NOT NULL,
+    `IsBanned` tinyint(1) NOT NULL,
+    CONSTRAINT `PK_TrackedCommunity` PRIMARY KEY (`Id`)
+) CHARACTER SET=utf8mb4;
+
+CREATE TABLE `ServerStatusArchive` (
+    `AdvertisedServerId` int NOT NULL,
+    `ServerStatusArchiveId` int NOT NULL AUTO_INCREMENT,
+    `Time` datetime(6) NOT NULL,
+    `StatusData` json NOT NULL,
+    `AdvertiserAddress` varchar(45) CHARACTER SET utf8mb4 NULL,
+    CONSTRAINT `PK_ServerStatusArchive` PRIMARY KEY (`ServerStatusArchiveId`, `AdvertisedServerId`),
+    CONSTRAINT `FK_ServerStatusArchive_AdvertisedServer_AdvertisedServerId` FOREIGN KEY (`AdvertisedServerId`) REFERENCES `AdvertisedServer` (`AdvertisedServerId`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
+
+CREATE TABLE `UniqueServerName` (
+    `AdvertisedServerId` int NOT NULL,
+    `Name` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+    `FirstSeen` datetime(6) NOT NULL,
+    `LastSeen` datetime(6) NOT NULL,
+    CONSTRAINT `PK_UniqueServerName` PRIMARY KEY (`AdvertisedServerId`, `Name`),
+    CONSTRAINT `FK_UniqueServerName_AdvertisedServer_AdvertisedServerId` FOREIGN KEY (`AdvertisedServerId`) REFERENCES `AdvertisedServer` (`AdvertisedServerId`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
+
+CREATE TABLE `TrackedCommunityAddress` (
+    `Id` int NOT NULL AUTO_INCREMENT,
+    `TrackedCommunityId` int NOT NULL,
+    `EndAddressRange` varbinary(16) NOT NULL,
+    `StartAddressRange` varbinary(16) NOT NULL,
+    CONSTRAINT `PK_TrackedCommunityAddress` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_TrackedCommunityAddress_TrackedCommunity_TrackedCommunityId` FOREIGN KEY (`TrackedCommunityId`) REFERENCES `TrackedCommunity` (`Id`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
+
+CREATE TABLE `TrackedCommunityDomain` (
+    `Id` int NOT NULL AUTO_INCREMENT,
+    `DomainName` longtext CHARACTER SET utf8mb4 NOT NULL,
+    `TrackedCommunityId` int NOT NULL,
+    CONSTRAINT `PK_TrackedCommunityDomain` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_TrackedCommunityDomain_TrackedCommunity_TrackedCommunityId` FOREIGN KEY (`TrackedCommunityId`) REFERENCES `TrackedCommunity` (`Id`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
+
+CREATE UNIQUE INDEX `IX_AdvertisedServer_Address` ON `AdvertisedServer` (`Address`);
+
+CREATE INDEX `IX_HubAudit_Time` ON `HubAudit` (`Time`);
+
+CREATE INDEX `IX_TrackedCommunityAddress_EndAddressRange` ON `TrackedCommunityAddress` (`EndAddressRange`);
+
+CREATE INDEX `IX_TrackedCommunityAddress_StartAddressRange` ON `TrackedCommunityAddress` (`StartAddressRange`);
+
+CREATE INDEX `IX_TrackedCommunityAddress_TrackedCommunityId` ON `TrackedCommunityAddress` (`TrackedCommunityId`);
+
+CREATE INDEX `IX_TrackedCommunityDomain_TrackedCommunityId` ON `TrackedCommunityDomain` (`TrackedCommunityId`);
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20230821031330_MySQLSupport', '7.0.10');
+
+COMMIT;
+
+START TRANSACTION;
+
+ALTER TABLE `TrackedCommunityAddress` MODIFY COLUMN `StartAddressRange` varbinary(16) NOT NULL;
+
+ALTER TABLE `TrackedCommunityAddress` MODIFY COLUMN `EndAddressRange` varbinary(16) NOT NULL;
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20230821061106_PruneWithTimeIndex', '7.0.10');
+
+COMMIT;
+
+
