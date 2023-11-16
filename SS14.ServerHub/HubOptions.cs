@@ -12,7 +12,7 @@ public sealed class HubOptions
     /// consistently, and being up to ~72sec late.  Because of that, just going to set this to 15 minutes.
     /// </summary>
     /// <value></value>
-    public float AdvertisementExpireMinutes { get; set; } = 15; 
+    public float AdvertisementExpireMinutes { get; set; } = 7;
         
     /// <summary>
     /// When a server advertises itself with the hub, we check whether we can reach the address.
