@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using SS14.ServerHub.Shared.Data;
 using SS14.ServerHub.Shared.Helpers;
+using Nager.PublicSuffix;
 
 namespace SS14.ServerHub.Shared;
 
@@ -26,7 +27,41 @@ public static class CommunityMatcher
     public static IQueryable<TrackedCommunityDomain> CheckDomain(HubDbContext dbContext, string domain)
     {
         return dbContext.TrackedCommunityDomain
-            .Where(d => d.DomainName == domain || EF.Functions.Like(domain, "%." + d.DomainName));
+            .Where(d => 
+                d.DomainName == domain || 
+                EF.Functions.Like(domain, "%." + d.DomainName));
+    }
+
+    /// <summary>
+    /// Parse a full address and match it with a tracked community.
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="address"></param>
+    /// <returns></returns>
+    public static IQueryable<TrackedCommunityDomain> CheckAddressDomain(HubDbContext dbContext, string address)
+    {
+        // Convert long url like "ss14://game.blepstation.com/path" to something more trackable like blepstation.com
+
+        // Trim protocol (if any)
+        string addressTrimmed = address;
+        if (address.ToLower().StartsWith("ss14://"))
+            addressTrimmed = address.Substring("ss14://".Length);
+
+        if (address.ToLower().StartsWith("ss14s://"))
+            addressTrimmed = address.Substring("ss14s://".Length);
+
+        // (Using an external lib to handle co.uk and other tld patterns)
+        var domainParser = new DomainParser(new WebTldRuleProvider());
+        var domainInfo = domainParser.Parse(addressTrimmed);
+
+        return dbContext.TrackedCommunityDomain
+            .Where(d => 
+                d.DomainName == address || 
+                d.DomainName == addressTrimmed || 
+                d.DomainName == domainInfo.RegistrableDomain || 
+                EF.Functions.Like(address, "%." + d.DomainName) ||
+                EF.Functions.Like(addressTrimmed, "%." + d.DomainName) ||
+                EF.Functions.Like(domainInfo.RegistrableDomain, "%." + d.DomainName));
     }
 
     /// <summary>
