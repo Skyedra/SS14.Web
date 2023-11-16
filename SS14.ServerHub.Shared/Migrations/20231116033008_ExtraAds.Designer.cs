@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SS14.ServerHub.Shared.Data;
 
@@ -10,9 +11,11 @@ using SS14.ServerHub.Shared.Data;
 namespace SS14.ServerHub.Shared.Migrations
 {
     [DbContext(typeof(HubDbContext))]
-    partial class HubDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231116033008_ExtraAds")]
+    partial class ExtraAds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

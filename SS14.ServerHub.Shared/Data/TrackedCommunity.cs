@@ -35,6 +35,12 @@ public sealed class TrackedCommunity
     /// </summary>
     public bool IsBanned { get; set; }
 
+    /// <summary>
+    /// Can this community post more than the default number of ads?
+    /// </summary>
+    /// <value></value>
+    public int ExtraAds { get; set; }
+
     // Navigation properties
     public List<TrackedCommunityAddress> Addresses { get; set; } = default!;
     public List<TrackedCommunityDomain> Domains { get; set; } = default!;

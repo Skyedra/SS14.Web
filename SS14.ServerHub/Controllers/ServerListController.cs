@@ -28,6 +28,8 @@ public class ServerListController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly IOptions<HubOptions> _options;
 
+    private const int MAX_SERVERS_PER_ADVERTISER_IP_WITHOUT_EXEMPTION = 2;
+
     public ServerListController(
         ILogger<ServerListController> logger,
         HubDbContext dbContext,
@@ -111,6 +113,38 @@ public class ServerListController : ControllerBase
         var addressEntity =
             await _dbContext.AdvertisedServer.SingleOrDefaultAsync(a => a.Address == advertise.Address);
 
+        // Check how many servers are advertised by an advertiser already -- deter flooding hub with results from a single spammy advertiser
+        var uniqueServersPerAdvertiser = await _dbContext.AdvertisedServer.CountAsync(a => 
+            a.AdvertiserAddress == senderIp &&
+            a.Expires > DateTime.UtcNow // Only consider active entries
+        );            
+        if (uniqueServersPerAdvertiser > MAX_SERVERS_PER_ADVERTISER_IP_WITHOUT_EXEMPTION) 
+        {
+            // They have exceeded typical limit.  Check for whitelisting
+            bool exemptionGranted = false;
+
+            var extraAdsByIP = await CheckIPExtraAdsAsync(senderIp);
+            if (extraAdsByIP != null)
+            {
+                if (uniqueServersPerAdvertiser <= MAX_SERVERS_PER_ADVERTISER_IP_WITHOUT_EXEMPTION + extraAdsByIP)
+                    exemptionGranted = true;
+            }
+
+            var extraAdsByDomain = await CheckAddressExtraAdsAsync(advertise.Address);
+            if (extraAdsByDomain != null)
+            {
+                if (uniqueServersPerAdvertiser <= MAX_SERVERS_PER_ADVERTISER_IP_WITHOUT_EXEMPTION + extraAdsByDomain)
+                    exemptionGranted = true;
+            }
+
+            if (!exemptionGranted)
+            {
+                _logger.LogInformation("Denying advertisement to {ip} advertising {address} because they're advertising too many servers.", senderIp.ToString(), advertise.Address);
+                return Unauthorized("Your IP is already advertising too many other servers.  Either wait for your other server ads to expire (15min) or if you are intentionally advertising multiple servers, please notify Skye on the SSMV Discord to have your domain or IP whitelisted.");
+            }
+        }
+
+        // Advertise
         var timeNow = DateTime.UtcNow;
         var newExpireTime = timeNow + TimeSpan.FromMinutes(options.AdvertisementExpireMinutes);
         if (addressEntity == null)
@@ -236,6 +270,22 @@ public class ServerListController : ControllerBase
             .FirstOrDefaultAsync(b => b.TrackedCommunity.IsBanned);
             //.SingleOrDefaultAsync(b => b.TrackedCommunity.IsBanned);
             // (See above note about wizden's use of SingleOrDefault)
+    }
+
+    private async Task<int?> CheckIPExtraAdsAsync(IPAddress address)
+    {
+        return await CommunityMatcher.CheckIP(_dbContext, address)
+            .MaxAsync(b => (int?)b.TrackedCommunity.ExtraAds);
+    }
+
+    
+    private async Task<int?> CheckAddressExtraAdsAsync(string address)
+    {
+        if (String.IsNullOrEmpty(address))
+            return 0;
+
+        return await CommunityMatcher.CheckAddressDomain(_dbContext, address)
+            .MaxAsync(b => (int?)b.TrackedCommunity.ExtraAds);
     }
 
     private enum BanCheckResult
