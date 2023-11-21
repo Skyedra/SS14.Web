@@ -71,8 +71,10 @@ public class ServerListController : ControllerBase
     public async Task<IActionResult> Advertise([FromBody] ServerAdvertise advertise)
     {
         var options = _options.Value;
-
         var senderIp = HttpContext.Connection.RemoteIpAddress;
+
+        _logger.LogInformation("Received Advertise request for address: {address} from IP {ip}", advertise.Address, senderIp);
+
         if (senderIp != null)
         {
             // Check IP ban for request sender (NOT advertised address yet).
