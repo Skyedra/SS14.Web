@@ -30,6 +30,8 @@ public class ServerListController : ControllerBase
 
     private const int MAX_SERVERS_PER_ADVERTISER_IP_WITHOUT_EXEMPTION = 2;
 
+    private const string BLOCKED_MESSAGE = "Your server has been blocked from advertising on the hub. If you believe this to be in error, please contact us.";
+
     public ServerListController(
         ILogger<ServerListController> logger,
         HubDbContext dbContext,
@@ -82,11 +84,10 @@ public class ServerListController : ControllerBase
             if (ban != null)
             {
                 _logger.LogInformation(
-                    "Advertise request sender {Address} is banned (community: {CommunityName})",
-                    senderIp,
-                    ban.TrackedCommunity.Name);
+                    "Advertise request sender {Address} is banned.",
+                    senderIp);  // ban.TrackedCommunity is null here, so can't output community name
 
-                return Unauthorized();
+                return Unauthorized(BLOCKED_MESSAGE);
             }
         }
 
@@ -100,7 +101,7 @@ public class ServerListController : ControllerBase
         switch (await CheckAddressBannedAsync(parsedAddress))
         {
             case BanCheckResult.Banned:
-                return Unauthorized("Your server has been blocked from advertising on the hub. If you believe this to be in error, please contact us.");
+                return Unauthorized(BLOCKED_MESSAGE);
             case BanCheckResult.FailedResolve:
                 return UnprocessableEntity("Server host name failed to resolve");
         }
