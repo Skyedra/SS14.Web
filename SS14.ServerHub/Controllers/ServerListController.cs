@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using SS14.ServerHub.Shared;
 using SS14.ServerHub.Shared.Data;
 using SS14.ServerHub.Utility;
@@ -230,6 +231,44 @@ public class ServerListController : ControllerBase
                 return (UnprocessableEntity("/info response data was not valid JSON!"), null, null);
             }
 
+            // No auth methods provided -- probably wizden engine
+            // This is a hackish workaround to try to infer auth status parameter based on what wizden engine's info 
+            // endpoint provides so guest mode support can be displayed in MV launcher.
+            if (statusData.AuthMethods == null || statusData.AuthMethods.Length == 0)
+            {
+                // (No idea why json is neing stored in byte arrays, but unpack it)
+                string infoResponseText = System.Text.Encoding.UTF8.GetString(infoResponse);
+                var infoData = JObject.Parse(infoResponseText);
+                ServerStatus? replacementStatus = null;
+
+                if (infoData.ContainsKey("auth"))
+                {
+                    JObject authInfoData = (JObject) infoData["auth"];
+                    if (authInfoData.ContainsKey("mode"))
+                    {
+                        switch ((string) authInfoData["mode"])
+                        {
+                            case "Optional":
+                                replacementStatus = statusData with { AuthMethods = new string[]{"guest"} };
+                                break;
+
+                            case "Required":
+                                return (UnprocessableEntity("Space Station Multiverse Hub now requires servers who list on it either use 1) MV Engine or 2) Wizden Engine but with Guest Mode enabled.  This is due to MV launcher being unfortunately blocked from using wizden auth.  This means that due to your server requiring wizden auth, *SSMV users cannot currently connect to your server*.  You can enable guest mode as optional in wizden RT engine by setting in your config's [auth] section: mode=0.  Or upgrade to MV Engine to use Key Authentication and get other features like optional VPN Block.  See site/discord for details."), null, null);
+                                break;
+
+                            case "Disabled":
+                                replacementStatus = statusData with { AuthMethods = new string[]{"guest"} };
+                                break;
+                        }
+                    }
+                }
+
+                if (replacementStatus != null)
+                {
+                    statusResponse = System.Text.Encoding.UTF8.GetBytes(JsonSerializer.Serialize(replacementStatus));
+                }
+            }
+
             return (null, statusResponse, infoResponse);
         }
         catch (Exception e)
@@ -304,8 +343,10 @@ public class ServerListController : ControllerBase
     // ReSharper disable once ClassNeverInstantiated.Local
     private sealed record ServerStatus(
         [property: JsonPropertyName("name")] string? Name,
-        [property: JsonPropertyName("players")]
-        int PlayerCount);
+        [property: JsonPropertyName("players")] int PlayerCount,
+        [property: JsonPropertyName("engine")] string? Engine, // Only provided for MV Engine based servers
+        [property: JsonPropertyName("auth_methods")] string?[] AuthMethods // Only provided for MV Engine based servers
+        );
 
     [JsonConverter(typeof(RawJsonConverter))]
     public sealed record RawJson(byte[] Json)
